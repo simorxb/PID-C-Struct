@@ -68,7 +68,7 @@ To use this PID controller framework:
 
 **Simone Bertoni**
 
-For more information and projects, visit [Simone Bertoni Lab]([https://github.com/simorxb](https://simonebertonilab.com/)).
+For more information and projects, visit [Simone Bertoni Lab](https://simonebertonilab.com/).
 
 ## Contact
 
