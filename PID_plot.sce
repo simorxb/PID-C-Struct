@@ -8,7 +8,7 @@ F_PID2 = [];
 z_PID2 = [];
 stp_PID2 = [];
 
-data_PID = read('PID C - Struct/data_PID_C.txt',-1,7);
+data_PID = read('data_PID_C.txt',-1,7);
 t_PID = data_PID(:,1);
 F_PID1 = data_PID(:,2);
 z_PID1 = data_PID(:,3);
