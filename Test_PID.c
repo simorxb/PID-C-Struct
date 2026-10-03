@@ -9,6 +9,13 @@
 
 int main()
 {
+    /* This function runs two PID loops with classical back-calculation on identical
+     * objects and logs the result to data_PID_C.txt.
+     *
+     * Returns:
+     *   0 on completion
+     */
+
     // Current simulation time
     float t = 0;
 

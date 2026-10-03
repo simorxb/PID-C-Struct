@@ -2,6 +2,16 @@
 
 static float PID_Limit_Command(struct PID *pid, float command)
 {
+    /* This function applies amplitude saturation and a rate limit to the PID command.
+     *
+     * Inputs:
+     *   command: unsaturated controller output
+     *   pid: a pointer to a PID struct containing the limits and the previous saturated command
+     *
+     * Returns:
+     *   command_sat: the command after saturation (max, min) and rate limiting (max_rate)
+     */
+
     float command_sat;
 
     /* Saturate command */
@@ -33,6 +43,16 @@ static float PID_Limit_Command(struct PID *pid, float command)
 
 static float PID_Classic_Command(struct PID *pid, float err)
 {
+    /* This function computes the unsaturated PID command with classical back-calculation.
+     *
+     * Inputs:
+     *   err: control error, setpoint minus measurement
+     *   pid: a pointer to a PID struct containing the gains and controller state
+     *
+     * Returns:
+     *   command: unsaturated output, Kp*err + integral + Kd*filtered derivative
+     */
+
     float deriv_filt;
 
     /* Integral term calculation - including anti-windup.
@@ -48,17 +68,40 @@ static float PID_Classic_Command(struct PID *pid, float err)
     return pid->Kp * err + pid->integral + pid->Kd * deriv_filt;
 }
 
-/* General back-calculation for C(s) = Kp + Ki/s + Kd s / (T_C s + 1).
-   C(inf) = Kp + Kd/T_C is applied directly to the error.
-   The dynamic part is C1(z), Tustin, followed by a forward-Euler integrator.
-   Kaw*(u_sat - u) is added to the error at the input of that dynamic part. */
 static float PID_General_Command(struct PID *pid, float err)
 {
+    /* This function computes the unsaturated command for general back-calculation.
+     *
+     * The controller is C(s) = Kp + Ki/s + Kd s / (T_C s + 1).
+     * C(inf) = Kp + Kd/T_C is applied directly to the error and added to the
+     * integrator state, which holds the dynamic part.
+     *
+     * Inputs:
+     *   err: control error, setpoint minus measurement
+     *   pid: a pointer to a PID struct containing the gains and integrator state
+     *
+     * Returns:
+     *   command: unsaturated output, C(inf)*err + integral
+     */
+
     return (pid->Kp + pid->Kd / pid->T_C) * err + pid->integral;
 }
 
 static void PID_General_Update(struct PID *pid, float err, float command, float command_sat)
 {
+    /* This function updates the dynamic state of the general back-calculation.
+     *
+     * The dynamic part is C1(z), from Tustin on (K s + Ki)/(T_C s + 1) with
+     * K = Ki*T_C - Kd/T_C, followed by a forward-Euler integrator.
+     * Kaw*(command_sat - command) is added to the error at the input of C1.
+     *
+     * Inputs:
+     *   err: control error, setpoint minus measurement
+     *   command: unsaturated command from this step
+     *   command_sat: command after saturation and rate limiting
+     *   pid: a pointer to a PID struct whose filter and integrator state are updated
+     */
+
     float K;
     float b0;
     float b1;

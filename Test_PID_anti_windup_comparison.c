@@ -17,6 +17,15 @@
    comparison is about amplitude saturation. */
 static float Setpoint(float t)
 {
+    /* This function returns the position reference used in the comparison.
+     *
+     * Inputs:
+     *   t: simulation time in seconds
+     *
+     * Returns:
+     *   setpoint: 5 s ramp to 20 m, hold until 40 s, then a 5 s ramp back to 0
+     */
+
     const float ramp = 5.0f;
     const float hold = 40.0f;
     const float target = 20.0f;
@@ -38,6 +47,14 @@ static float Setpoint(float t)
 
 int main()
 {
+    /* This function runs one PID tuning with classical back-calculation and the same
+     * tuning with general back-calculation, on identical objects, and logs both to
+     * data_PID_anti_windup_comparison.txt.
+     *
+     * Returns:
+     *   0 on completion
+     */
+
     const float Kp = 8.0f;
     const float Ki = 0.5f;
     const float Kd = 40.0f;
